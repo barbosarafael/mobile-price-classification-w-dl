@@ -51,4 +51,20 @@ Criei esse script `.py` que extrai os dados desse dataset no Kaggle e salva em u
 python get_dataset.py -p iabhishekofficial/mobile-price-classification
 ```
 
-## 3) 
+## 3) Análise exploratória
+
+Coisas simples, pessoal. Esse não é o objetivo por aqui. 
+
+A maioria das variáveis são quase igualmente distribuídas entre suas classes, com exceção da variável "possui 3g" que possui 76% dos celulares com 3G.
+
+![alt text](images/image.png)
+
+- Celulares mais caros são os que mais possuem capacidade de bateria
+- Celulares mais caros são os que possuem mais memória RAM. Conforme decresce a memória RAM, também decresce o preço
+- Celulares maiores, em termos de medidas, são os mais caros
+
+![alt text](images/image-1.png)
+
+## 4) Modelagem com Torch
+
+## X) Referências

@@ -66,5 +66,3 @@ A maioria das variáveis são quase igualmente distribuídas entre suas classes,
 ![alt text](images/image-1.png)
 
 ## 4) Modelagem com Torch
-
-## X) Referências

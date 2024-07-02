@@ -2,6 +2,8 @@
 
 Nesse texto, pularei para a parte de entendimento do método do MLP. Se desejas uma **introdução a redes neurais**, junto aos seus conceitos iniciais e principais intuições por trás, recomendo os seguintes materiais:
 
+- Playlist de Redes Neurais do professor Fernando dos Santos: https://www.youtube.com/playlist?list=PLPrYObOisEDGCe-bt-x2tbUjh-RgM2FL0
+
 - Introdução às Redes Neurais Artificiais, por Matheus Facure: https://matheusfacure.github.io/2017/03/05/ann-intro/
 
 - Playlist de redes neurais do 3blue1brown: https://www.youtube.com/watch?v=aircAruvnKk&list=PL_h2yd2CGtBHEKwEH5iqTZH85wLS-eUzv
@@ -10,6 +12,9 @@ Nesse texto, pularei para a parte de entendimento do método do MLP. Se desejas 
 
 - https://www.maxwell.vrac.puc-rio.br/32823/32823_4.PDF
 
+# Arquitetura
+
+![alt text](../images/image-2.png)
 
 ## Tópicos:
 

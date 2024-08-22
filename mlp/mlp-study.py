@@ -8,15 +8,14 @@ train = pd.read_csv('../data/train.csv')
 
 # 3) MLP 
 
+# Device
+
+device = cuda_is_available()
+
 # a) Split train and test
 
 X = train.drop(columns = 'price_range').to_numpy()
-y = train[['price_range']].to_numpy()
-
-# Transform to torch format
-
-X = torch.from_numpy(X).type(torch.float)
-y = torch.from_numpy(y).type(torch.float)
+y = np.array(train['price_range'].to_list())
 
 # Split 
 
@@ -26,70 +25,57 @@ X_train, X_test, y_train, y_test = train_test_split(X,
                                                     random_state = 19, 
                                                     stratify = y)
 
-# Device
+# Scaler
 
-device = cuda_is_available()
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
-# Define the model
+# Convert to torch tensor
 
-model_0 = ModelV0(n_features = 20, neurons_hidden = 10, n_class_pred = 4).to(device = device)    
+X_train_tensor = torch.tensor(X_train, dtype = torch.float32).to(device)
+X_test_tensor = torch.tensor(X_test, dtype = torch.int64).to(device)
+y_train_tensor = torch.tensor(y_train, dtype = torch.long).to(device)
+y_test_tensor = torch.tensor(y_test, dtype = torch.int64).to(device)
 
-print(model_0)
+# Instantiate the model
 
-# Loss function
+in_features = X_train.shape[1]
+num_class = len(set(y))
 
-loss_function = nn.CrossEntropyLoss()
+model_0 = ModelV0(n_features = in_features, 
+                  neurons_hidden = 10,
+                  n_class_pred = num_class).to(device = device)
 
-# Optimizer
+criterion = nn.CrossEntropyLoss()
 
-learning_rate = 0.0001
+learning_rate = 0.001
 optimizer = torch.optim.SGD(params = model_0.parameters(), 
                             lr = learning_rate)
 
-# Traing
+num_epochs = 1000
 
-n_epochs = 1000
-
-loss = []
-
-torch.manual_seed(seed = 19)
-
-# Put data to target device
-
-y_train = y_train.view(-1).long()
-y_test = y_test.view(-1).long()
-
-
-X_train, y_train = X_train.to(device), y_train.to(device)
-X_test, y_test = X_test.to(device), y_test.to(device)
-
-for epoch in range(n_epochs):       
+for epoch in range(num_epochs):
     
-    # Clear gradient
+    model_0.train()
+    
+    # Forward pass
+    
+    outputs = model_0(X_train_tensor)
+    loss = criterion(outputs, y_train_tensor)
+    
+    _, predicted_labels = torch.max(outputs, 1)
+    correct_predictions = (predicted_labels == y_train_tensor).sum().item()
+    total_samples = len(y_train_tensor)
+    acc = correct_predictions/total_samples
     
     optimizer.zero_grad()
-    
-    # Training
-    
-    z = model_0.train()
-    
-    y_logits = model_0(X_train)
-    p1 = torch.softmax(y_logits, dim=1)
-    # print(p1)
-    y_pred = torch.argmax(p1, dim = 1)
-    
-    # print(y_logits)
-    # print(y_pred)
-    
-    loss_tmp = loss_function(y_logits, y_train) # -> RuntimeError: 0D or 1D target tensor expected, multi-target not supported
-    
-    acc = accuracy_fn(y_true = y_train, 
-                      y_pred = y_pred) 
-    
-    
-    # print(loss_tmp)
+    loss.backward()
+    optimizer.step()
     
     # Print out what's happening every 10 epochs
-    if epoch % 10 == 0:
+    if epoch % 100 == 0:
         
-        print(f"Epoch: {epoch} | Loss: {loss_tmp:.5f}, Accuracy: {acc:.2f}%")
+        print(f"Epoch: {epoch} | Loss: {loss.item()} | Acc: {acc}")
+        
+# TODO: see the next steps https://www.youtube.com/watch?v=iWdVXAwurXs

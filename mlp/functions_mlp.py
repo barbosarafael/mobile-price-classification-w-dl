@@ -5,6 +5,8 @@ import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
 from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.preprocessing import StandardScaler
 
 # Pandas option to dysplay all columns in dataframe
 
@@ -29,7 +31,7 @@ class ModelV0(nn.Module):
         
     def forward(self, x): # Define a forward method containing the forward pass computation
         
-        x = torch.sigmoid(self.layer_1(x))
+        x = torch.relu(self.layer_1(x))
         x = self.layer_2(x)
         
         return x

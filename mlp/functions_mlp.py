@@ -7,6 +7,8 @@ from sklearn.model_selection import train_test_split
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+from torchmetrics.classification import MulticlassAccuracy, ConfusionMatrix
 
 # Pandas option to dysplay all columns in dataframe
 
@@ -27,19 +29,16 @@ class ModelV0(nn.Module):
         super(ModelV0, self).__init__()
         
         self.layer_1 = nn.Linear(in_features = n_features, out_features = neurons_hidden, bias = True) # 20 features (dataset) to a next layer with 30 neurons
+        self.relu = nn.ReLU() # Apply ReLU activation function
         self.layer_2 = nn.Linear(in_features = neurons_hidden, out_features = n_class_pred, bias = True) # layer with 30 neurons and define a next layer with 20 neurons
+        self.softmax = nn.Softmax(dim = 1)  # Função Softmax para converter em probabilidades
+
         
     def forward(self, x): # Define a forward method containing the forward pass computation
         
-        x = torch.relu(self.layer_1(x))
-        x = self.layer_2(x)
-        
-        return x
-    
-# Calculate accuracy (a classification metric)
-
-def accuracy_fn(y_true, y_pred):
-    
-    correct = torch.eq(y_true, y_pred).sum().item() # torch.eq() calculates where two tensors are equal
-    acc = (correct / len(y_pred)) * 100 
-    return acc    
+        out = self.layer_1(x)
+        out = self.relu(out)
+        out = self.layer_2(out)
+        out = self.softmax(out)
+                
+        return out

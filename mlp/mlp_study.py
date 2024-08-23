@@ -22,7 +22,7 @@ y = np.array(train['price_range'].to_list())
 X_train, X_test, y_train, y_test = train_test_split(X,
                                                     y,
                                                     test_size = 0.3,
-                                                    random_state = 19, 
+                                                    random_state = 19,
                                                     stratify = y)
 
 # Scaler
@@ -34,9 +34,9 @@ X_test = scaler.transform(X_test)
 # Convert to torch tensor
 
 X_train_tensor = torch.tensor(X_train, dtype = torch.float32).to(device)
-X_test_tensor = torch.tensor(X_test, dtype = torch.int64).to(device)
+X_test_tensor = torch.tensor(X_test, dtype = torch.float32).to(device)
 y_train_tensor = torch.tensor(y_train, dtype = torch.long).to(device)
-y_test_tensor = torch.tensor(y_test, dtype = torch.int64).to(device)
+y_test_tensor = torch.tensor(y_test, dtype = torch.long).to(device)
 
 # Instantiate the model
 
@@ -47,13 +47,17 @@ model_0 = ModelV0(n_features = in_features,
                   neurons_hidden = 10,
                   n_class_pred = num_class).to(device = device)
 
+# Define the criterion
+
 criterion = nn.CrossEntropyLoss()
+
+# Define the optimizer
 
 learning_rate = 0.001
 optimizer = torch.optim.SGD(params = model_0.parameters(), 
                             lr = learning_rate)
 
-num_epochs = 1000
+num_epochs = 200000
 
 for epoch in range(num_epochs):
     
@@ -73,9 +77,32 @@ for epoch in range(num_epochs):
     loss.backward()
     optimizer.step()
     
-    # Print out what's happening every 10 epochs
-    if epoch % 100 == 0:
+    if epoch % 10000 == 0:
         
         print(f"Epoch: {epoch} | Loss: {loss.item()} | Acc: {acc}")
         
-# TODO: see the next steps https://www.youtube.com/watch?v=iWdVXAwurXs
+        
+model_0.eval()
+with torch.inference_mode():
+    
+    outputs = model_0(X_test_tensor)
+
+    _, predicted = torch.max(outputs, 1)
+    
+    metric = MulticlassAccuracy(num_classes = num_class).to(device = device)
+    accuracy = metric(y_test_tensor, predicted)
+    
+    loss = criterion(outputs, predicted)
+    
+    confmat = ConfusionMatrix(task = 'multiclass', num_classes = num_class).to(device = device)
+    confmat_ = confmat(y_test_tensor, predicted)
+        
+    print(f"Loss: {loss.item()} | Acc: {accuracy}")
+    print(f"Confusion matrix: \n{confmat_}")
+    
+# TODO Read about these topics:
+
+# - CrossEntropyLoss
+# - zero_grad
+# - optimizer.step()
+# - `torch.inferece_mode`

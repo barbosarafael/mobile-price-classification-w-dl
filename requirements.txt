@@ -5,3 +5,4 @@ jupyter_core==5.7.2
 plotly==5.22.0
 torch==2.3.1
 scikit-learn==1.5.0
+torchmetrics==1.4.1
